@@ -2,7 +2,8 @@ def AutoTag() {
     stage('AutoTag'){
         sh 'echo TAG IS STARTED '
         sh 'echo ${MY_BRANCH}'
-        sh 'git config --get-all fetch.tags'
+        env.newtagFail = sh ( script: 'git config --get-all fetch.tags', returnStdout: true).trim()
+        sh 'echo ${newtagFail}'
         env.STREAM_VERSION = sh ( script: 'git describe --abbrev=0 --tags --match=$MY_BRANCH*', returnStdout: true).trim()      //Store Full tag
         env.STREAM = sh ( script: 'echo $STREAM_VERSION | cut -d "-" -f1', returnStdout: true).trim()       //Store Stream Name
         env.CURRENT_MAX = sh ( script: 'echo $STREAM_VERSION | cut -d "-" -f2 ', returnStdout: true).trim() //Store Main Max 
