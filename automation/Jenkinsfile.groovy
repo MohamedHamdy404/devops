@@ -21,6 +21,8 @@ pipeline {
         stage("tagging") {
             steps {
                 script {
+                    sh ' echo "autotag started" '
+					sh "git config --global --add safe.directory ${env.WORKSPACE}"
                     sh 'echo "autotag started"'
                     pipelineScripts = load "automation/tag.groovy"
 					pipelineScripts.AutoTag()
