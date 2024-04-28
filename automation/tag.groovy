@@ -2,7 +2,6 @@ def AutoTag() {
     stage('AutoTag'){
         sh 'echo TAG IS STARTED '
         sh 'echo ${MY_BRANCH}'
-        git config --get-all fetch.tags
         sh 'git config --get-all fetch.tags'
         env.STREAM_VERSION = sh ( script: 'git describe --abbrev=0 --tags --match=$MY_BRANCH*', returnStdout: true).trim()      //Store Full tag
         env.STREAM = sh ( script: 'echo $STREAM_VERSION | cut -d "-" -f1', returnStdout: true).trim()       //Store Stream Name
