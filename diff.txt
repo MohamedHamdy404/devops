@@ -1,0 +1,5 @@
+automation/Jenkinsfile
+automation/Jenkinsfile.groovy
+automation/tag.groovy
+automation/tagging.groovy
+release.txt

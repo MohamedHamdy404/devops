@@ -1,4 +1,4 @@
-def autoTag() {
+def PushTag() {
     stage('PushTag'){
        
 
