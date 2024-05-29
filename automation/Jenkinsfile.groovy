@@ -20,7 +20,7 @@ pipeline {
             steps {
                 script {
                     // Load the Jenkinsfile from the submodule and execute it
-                    load 'automation/Jenkinsfile.groovy'
+                    load 'automation/final.groovy'
                 }
             }
         }
