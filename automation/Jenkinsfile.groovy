@@ -1,92 +1,28 @@
 pipeline {
-    agent any;
-
-    environment {
-        GITHUB_REPO = "MohamedHamdy404/devops"
-        DOCKER_REGISTRY = ""
-        DOCKER_IMAGE = ""
-        imageTag = ""
-        imageName = ""
-        MY_BRANCH = "release"
-        SERVICE_NAME = "Demo-service"
-        PROJECT_KEY= "${env.SERVICE_NAME}-${MY_BRANCH}"
-
-        def details = """ <h1>Jenkins Job Output </h1>
-			<p> Build Status:   ${currentBuild.currentResult} </p>
-			<p> Jenkins Job Name:   [ ${env.JOB_NAME} ] </p> 
-			<p> BUILD_NUMBER:   [ ${env.BUILD_NUMBER} ] </p>
-			<p> Jenkins Job Console Log:   <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>
-			<p> New Tag Version: [${env.TAG}] </p>
-			"""
-    }
+    agent any
 
     stages {
-        /*
-        stage("checkout") {
+        stage('Checkout') {
             steps {
-                git url: "https://github.com/${GITHUB_REPO}.git", branch: 'main'
-                sh 'cat flag.txt'
+                // Checkout the repository with submodules
+                checkout([
+                    $class: 'GitSCM',
+                    branches: [[name: '*/main']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [
+                        [$class: 'SubmoduleOption', recursiveSubmodules: true, trackingSubmodules: true]
+                    ],
+                    userRemoteConfigs: [[url: 'https://github.com/MohamedHamdy404/repo.git']]
+                ])
             }
         }
-*/
-        stage("tagging") {
-            steps {
-                script {
-
-					sh "git config --global --add safe.directory ${env.WORKSPACE}"
-                    sh 'echo "autotag started"'
-                    pipelineScripts = load "automation/tag.groovy"
-					pipelineScripts.AutoTag()
-                    
-                    sh 'echo ${TAG}'
-                }
-            }
-        }
-
-        stage("") {
+        stage('Load Pipeline from Submodule') {
             steps {
                 script {
-
-					sh "git config --global --add safe.directory ${env.WORKSPACE}"
-                    sh 'echo "autotag started"'
-                    pipelineScripts = load "automation/tag.groovy"
-					pipelineScripts.AutoTag()
-                    
-                    sh 'echo ${TAG}'
+                    // Load the Jenkinsfile from the submodule and execute it
+                    load 'automation/Jenkinsfile.groovy'
                 }
             }
         }
-
-        stage('publish report template'){
-			steps{
-				script{
-                    sh "echo 'stage to publish report'"
-                    details = """ <h1>Jenkins Job Output </h1>
-                    <p> Build Status:   ${currentBuild.currentResult} </p>
-                    <p> Jenkins Job Name:   [ ${env.JOB_NAME} ] </p> 
-                    <p> BUILD_NUMBER:   [ ${env.BUILD_NUMBER} ] </p>
-                    <p> Jenkins Job Console Log:   <a href='${env.BUILD_URL}'>${env.JOB_NAME} [${env.BUILD_NUMBER}]</a></p>
-                    <p> New Tag Version: [${env.TAG}] </p>
-                    """
-                }
-			}
-		}
-    }
-    post{
-		always {
-
-			writeFile (file: 'template.html', text: details )
-			archiveArtifacts artifacts: 'template.html'	
-            script{	
-                try{
-                    currentBuild.description = "Generated Version: ${TAG}"
-                // junit 'target/**/*.xml'
-                }catch (Exception e){
-                    echo "An exception occurred: ${e.message}"
-                }
-            }
-        }
-		
-        
     }
 }
